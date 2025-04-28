@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Halaman Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f2f2f2;
+    }
+    .container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      width: 300px;
+    }
+    h2, h3 {
+      margin-top: 0;
+    }
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 8px 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 4px;
+      background-color: #007BFF;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .delete-button {
+      background-color: red;
+      margin-left: 10px;
+    }
+    .delete-button:hover {
+      background-color: darkred;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="login-view">
+    <h2>Silahkan login terlebih dahulu</h2>
+    <form id="login-form">
+      <label>
+        Username:
+        <input type="text" id="username" required>
+      </label>
+      <label>
+        Password:
+        <input type="password" id="password" required>
+      </label>
+      <button type="button" id="login-button">Login</button>
+    </form>
+  </div>
+
+  <div class="container" id="content-view" style="display: none;">
+    <h2>Berikut Ulang Tahun Kelas Anda!</h2>
+    <ul id="birthday-list"></ul>
+
+    <div id="admin-panel" style="display: none;">
+      <h3>Tambah Ulang Tahun</h3>
+      <label>
+        Nama:
+        <input type="text" id="new-name">
+      </label>
+      <label>
+        Tanggal Lahir:
+        <input type="text" id="new-date" placeholder="contoh: 15 Juli 2010">
+      </label>
+      <button id="add-button">Tambah</button>
+    </div>
+  </div>
+
+  <script>
+    const credentials = {
+      admin: 'F4aG!8dL#pM2eK@9nR7bH$J5c^',
+      administrator: '4F!aG8d#LpM2$eK9nR@7bH#J5c^&'
+    };
+
+    const loginView = document.getElementById('login-view');
+    const contentView = document.getElementById('content-view');
+    const loginButton = document.getElementById('login-button');
+    const adminPanel = document.getElementById('admin-panel');
+    const addButton = document.getElementById('add-button');
+    const birthdayList = document.getElementById('birthday-list');
+
+    let isAdministrator = false;
+
+    let birthdays = JSON.parse(localStorage.getItem('birthdays')) || [{name: 'Ubay', date: '10 Juni 2010'}];
+
+    function saveBirthdays() {
+      localStorage.setItem('birthdays', JSON.stringify(birthdays));
+    }
+
+    function renderBirthdays() {
+      birthdayList.innerHTML = '';
+      birthdays.forEach((b, index) => {
+        const li = document.createElement('li');
+        li.textContent = `${b.name} ${b.date}`;
+
+        if (isAdministrator) {
+          const deleteBtn = document.createElement('button');
+          deleteBtn.textContent = 'Hapus';
+          deleteBtn.className = 'delete-button';
+          deleteBtn.onclick = () => {
+            birthdays.splice(index, 1);
+            saveBirthdays();
+            renderBirthdays();
+          };
+          li.appendChild(deleteBtn);
+        }
+
+        birthdayList.appendChild(li);
+      });
+    }
+
+    loginButton.addEventListener('click', () => {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (credentials[username] && credentials[username] === password) {
+        loginView.style.display = 'none';
+        contentView.style.display = 'block';
+
+        isAdministrator = (username === 'administrator');
+
+        if (isAdministrator) {
+          adminPanel.style.display = 'block';
+        }
+
+        renderBirthdays();
+      } else {
+        alert('Username atau password salah. Silakan coba lagi.');
+      }
+    });
+
+    if (addButton) {
+      addButton.addEventListener('click', () => {
+        const newName = document.getElementById('new-name').value.trim();
+        const newDate = document.getElementById('new-date').value.trim();
+        if (newName && newDate) {
+          birthdays.push({name: newName, date: newDate});
+          saveBirthdays();
+          renderBirthdays();
+          document.getElementById('new-name').value = '';
+          document.getElementById('new-date').value = '';
+        } else {
+          alert('Isi nama dan tanggal lahir dengan benar.');
+        }
+      });
+    }
+
+    // Untuk kembali ke halaman login, cukup refresh halaman.
+  </script>
+</body>
+</html>
